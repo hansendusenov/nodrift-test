@@ -3,6 +3,7 @@ import { X, Calendar, UserCheck, Shield, Car, AlertCircle } from 'lucide-react';
 import { calculateRentalCost } from '../domain/rentalService.js';
 import { validateBookingInput } from '../domain/validation.js';
 import { bookingRepository } from '../data/bookingRepository.js';
+import { useFocusTrap } from '../hooks/useFocusTrap.js';
 
 const formatRupiah = (num) => {
   return new Intl.NumberFormat('id-ID', {
@@ -38,6 +39,10 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
   const customerIdCardRef = useRef(null);
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
+
+  // Trap focus inside the dialog and restore it to the trigger on close
+  const containerRef = useRef(null);
+  useFocusTrap(containerRef, true);
 
   // Close on Escape key (nodrift-ui Section 6)
   useEffect(() => {
@@ -143,11 +148,16 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
       aria-modal="true"
       aria-labelledby="booking-modal-title"
     >
-      <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-container"
+        ref={containerRef}
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Modal Header */}
         <div className="modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <Car size={20} color="var(--accent-primary)" />
+          <div className="row-6">
+            <Car size={20} color="var(--accent-primary)" aria-hidden="true" />
             <h2 id="booking-modal-title" className="modal-title">Form Sewa Mobil</h2>
           </div>
           <button
@@ -163,53 +173,32 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
         {/* Modal Body */}
         <form onSubmit={handleSubmit} className="modal-body" noValidate>
           {submitError && (
-            <div
-              role="alert"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.75rem 1rem',
-                background: 'rgba(244, 63, 94, 0.12)',
-                border: '1px solid var(--accent-rose)',
-                borderRadius: 'var(--radius-md)',
-                color: '#fb7185',
-                fontSize: '0.875rem',
-              }}
-            >
-              <AlertCircle size={18} />
+            <div role="alert" className="alert-danger">
+              <AlertCircle size={18} aria-hidden="true" />
               <span>{submitError}</span>
             </div>
           )}
 
           {/* Selected Car Banner */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-            padding: '0.85rem 1rem',
-            background: 'rgba(255,255,255,0.03)',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--border-light)'
-          }}>
+          <div className="selected-car-banner">
             <img
               src={car.imageUrl}
               alt={`Foto kendaraan ${car.name}`}
-              style={{ width: 68, height: 48, objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
+              className="selected-car-thumb"
             />
             <div>
-              <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>{car.name}</h4>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              <h4 className="selected-car-name">{car.name}</h4>
+              <p className="selected-car-meta">
                 {car.category} • <span className="tabular-nums">{formatRupiah(car.pricePerDay)}</span> / hari
               </p>
             </div>
           </div>
 
           {/* Date Picker Range */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="grid-2col">
             <div className="form-group">
               <label htmlFor="start-date-input" className="form-label">
-                <Calendar size={14} style={{ display: 'inline', marginRight: 4 }} /> Tanggal Mulai
+                <Calendar size={14} className="form-label-icon" aria-hidden="true" /> Tanggal Mulai
               </label>
               <input
                 id="start-date-input"
@@ -229,7 +218,7 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
 
             <div className="form-group">
               <label htmlFor="end-date-input" className="form-label">
-                <Calendar size={14} style={{ display: 'inline', marginRight: 4 }} /> Tanggal Selesai
+                <Calendar size={14} className="form-label-icon" aria-hidden="true" /> Tanggal Selesai
               </label>
               <input
                 id="end-date-input"
@@ -250,62 +239,46 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
 
 
           {/* Options: Driver & Insurance */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-            <div
-              className={`option-box ${withDriver ? 'active' : ''}`}
-              onClick={() => setWithDriver(!withDriver)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setWithDriver(!withDriver); } }}
-              aria-pressed={withDriver}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <UserCheck size={18} color={withDriver ? 'var(--accent-primary)' : 'var(--text-muted)'} />
+          <div className="stack-6">
+            <label className={`option-box ${withDriver ? 'active' : ''}`}>
+              <div className="option-box-main">
+                <UserCheck size={18} color={withDriver ? 'var(--accent-primary)' : 'var(--text-muted)'} aria-hidden="true" />
                 <div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>Sewa Dengan Sopir</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  <div className="option-box-title">Sewa Dengan Sopir</div>
+                  <div className="option-box-desc">
                     Driver profesional +<span className="tabular-nums">{formatRupiah(car.driverFeePerDay)}</span>/hari
                   </div>
                 </div>
               </div>
               <input
                 type="checkbox"
+                className="option-checkbox option-checkbox-driver"
                 checked={withDriver}
-                onChange={() => {}}
-                aria-label="Pilih opsi sewa dengan sopir"
-                style={{ accentColor: 'var(--accent-primary)', width: 18, height: 18 }}
+                onChange={(e) => setWithDriver(e.target.checked)}
               />
-            </div>
+            </label>
 
-            <div
-              className={`option-box ${withInsurance ? 'active' : ''}`}
-              onClick={() => setWithInsurance(!withInsurance)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setWithInsurance(!withInsurance); } }}
-              aria-pressed={withInsurance}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <Shield size={18} color={withInsurance ? 'var(--accent-emerald)' : 'var(--text-muted)'} />
+            <label className={`option-box ${withInsurance ? 'active' : ''}`}>
+              <div className="option-box-main">
+                <Shield size={18} color={withInsurance ? 'var(--semantic-success)' : 'var(--text-muted)'} aria-hidden="true" />
                 <div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>Asuransi All-Risk Protection</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  <div className="option-box-title">Asuransi All-Risk Protection</div>
+                  <div className="option-box-desc">
                     Ganti rugi lecet & kecelakaan +<span className="tabular-nums">{formatRupiah(50000)}</span>/hari
                   </div>
                 </div>
               </div>
               <input
                 type="checkbox"
+                className="option-checkbox option-checkbox-insurance"
                 checked={withInsurance}
-                onChange={() => {}}
-                aria-label="Pilih perlindungan asuransi All-Risk"
-                style={{ accentColor: 'var(--accent-emerald)', width: 18, height: 18 }}
+                onChange={(e) => setWithInsurance(e.target.checked)}
               />
-            </div>
+            </label>
           </div>
 
           {/* Customer Information */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginTop: '0.5rem' }}>
+          <div className="stack-12-top">
             <div className="form-group">
               <label htmlFor="customer-name-input" className="form-label">Nama Lengkap Penyewa *</label>
               <input
@@ -325,7 +298,7 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
               )}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="grid-2col">
               <div className="form-group">
                 <label htmlFor="customer-phone-input" className="form-label">Nomor WhatsApp *</label>
                 <input
@@ -405,21 +378,19 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
           </div>
 
           {/* Submit Action */}
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+          <div className="form-actions">
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-secondary btn-cancel"
               onClick={onClose}
               disabled={isSubmitting}
-              style={{ flex: 1 }}
             >
               Batal
             </button>
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-primary btn-submit"
               disabled={isSubmitting}
-              style={{ flex: 2 }}
             >
               {isSubmitting ? 'Memproses...' : 'Konfirmasi & Buat Invoice'}
             </button>

@@ -34,6 +34,7 @@ Aplikasi mematuhi prinsip *Clean Layer Separation* (`nodrift-standard`):
 │   ├── data/                # Data layer (carRepository, bookingRepository, mockCars)
 │   ├── domain/              # Domain services & validation (rentalService, validation)
 │   ├── components/          # Presentation layer (Navbar, CarCard, FilterBar, Modals)
+│   ├── hooks/               # Reusable UI hooks (focus trap for dialogs)
 │   ├── styles/              # Design tokens & komponen CSS murni
 │   ├── App.jsx              # Root assembly component
 │   └── main.jsx

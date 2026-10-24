@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X, CheckCircle2, MessageSquare, Printer, Calendar } from 'lucide-react';
 import { buildWhatsAppBookingMessage } from '../domain/validation.js';
 import { appConfig } from '../config/index.js';
+import { useFocusTrap } from '../hooks/useFocusTrap.js';
 
 const formatRupiah = (num) => {
   return new Intl.NumberFormat('id-ID', {
@@ -12,6 +13,9 @@ const formatRupiah = (num) => {
 };
 
 export const InvoiceModal = ({ booking, car, onClose }) => {
+  const containerRef = useRef(null);
+  useFocusTrap(containerRef, Boolean(booking));
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -52,10 +56,15 @@ export const InvoiceModal = ({ booking, car, onClose }) => {
       aria-modal="true"
       aria-labelledby="invoice-modal-title"
     >
-      <div className="modal-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 540 }}>
+      <div
+        className="modal-container modal-container-md"
+        ref={containerRef}
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div className="row-8">
             <span id="invoice-modal-title" className="invoice-badge-status">
               <CheckCircle2 size={16} /> Booking Berhasil Dibuat
             </span>
@@ -73,43 +82,43 @@ export const InvoiceModal = ({ booking, car, onClose }) => {
         {/* Invoice Body */}
         <div className="modal-body">
           <div className="invoice-receipt">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
+            <div className="row-between-top">
               <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-primary)' }}>{appConfig.appName}</h3>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-subtle)' }}>Bukti Pemesanan Sewa Mobil</p>
+                <h3 className="invoice-brand-name">{appConfig.appName}</h3>
+                <p className="invoice-brand-sub">Bukti Pemesanan Sewa Mobil</p>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-subtle)' }}>Kode Booking</span>
-                <p style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.9rem', color: '#f8fafc' }} className="tabular-nums">
+              <div className="text-end">
+                <span className="invoice-code-label">Kode Booking</span>
+                <p className="invoice-code-value tabular-nums">
                   {booking.id}
                 </p>
               </div>
             </div>
 
             {/* Customer Details */}
-            <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '0.75rem', marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.825rem', marginBottom: '0.35rem' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Nama Pelanggan:</span>
-                <span style={{ fontWeight: 600 }}>{booking.customerName}</span>
+            <div className="invoice-section-top">
+              <div className="invoice-detail-row">
+                <span className="invoice-detail-label">Nama Pelanggan:</span>
+                <span className="invoice-detail-value">{booking.customerName}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.825rem', marginBottom: '0.35rem' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Nomor WhatsApp:</span>
+              <div className="invoice-detail-row">
+                <span className="invoice-detail-label">Nomor WhatsApp:</span>
                 <span className="tabular-nums">{booking.customerPhone}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.825rem' }}>
-                <span style={{ color: 'var(--text-muted)' }}>No. Identitas (KTP/SIM):</span>
+              <div className="invoice-detail-row">
+                <span className="invoice-detail-label">No. Identitas (KTP/SIM):</span>
                 <span className="tabular-nums">{booking.customerIdCard}</span>
               </div>
             </div>
 
             {/* Vehicle & Rental Details */}
-            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', marginBottom: '1rem' }}>
-              <div style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.25rem' }}>
+            <div className="invoice-vehicle-box">
+              <div className="invoice-vehicle-name">
                 {booking.carName}
               </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <Calendar size={13} color="var(--accent-primary)" />
+              <div className="invoice-vehicle-meta">
+                <span className="invoice-date-inline">
+                  <Calendar size={13} color="var(--accent-primary)" aria-hidden="true" />
                   <span className="tabular-nums">{booking.startDate}</span> s/d <span className="tabular-nums">{booking.endDate}</span> (<span className="tabular-nums">{booking.costBreakdown.days}</span> Hari)
                 </span>
                 <span>•</span>
@@ -120,7 +129,7 @@ export const InvoiceModal = ({ booking, car, onClose }) => {
             </div>
 
             {/* Price breakdown */}
-            <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '0.75rem' }}>
+            <div className="invoice-section-top-flush">
               <div className="summary-row">
                 <span>Biaya Unit Mobil</span>
                 <span className="tabular-nums">{formatRupiah(booking.costBreakdown.carSubtotal)}</span>
@@ -137,7 +146,7 @@ export const InvoiceModal = ({ booking, car, onClose }) => {
                   <span className="tabular-nums">{formatRupiah(booking.costBreakdown.insuranceSubtotal)}</span>
                 </div>
               )}
-              <div className="summary-row total" style={{ marginTop: '0.5rem' }}>
+              <div className="summary-row total">
                 <span>Total Tagihan</span>
                 <span className="total-amount tabular-nums">{formatRupiah(booking.costBreakdown.grandTotal)}</span>
               </div>
@@ -145,24 +154,23 @@ export const InvoiceModal = ({ booking, car, onClose }) => {
           </div>
 
           {/* Action CTAs */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div className="invoice-actions">
             <a
               href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-whatsapp"
-              style={{ width: '100%', fontSize: '1rem', padding: '0.85rem' }}
             >
-              <MessageSquare size={20} />
+              <MessageSquare size={20} aria-hidden="true" />
               Kirim Bukti ke WhatsApp Customer Service
             </a>
 
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button type="button" className="btn btn-secondary" onClick={handlePrint} style={{ flex: 1 }}>
-                <Printer size={16} />
+            <div className="invoice-actions-row">
+              <button type="button" className="btn btn-secondary" onClick={handlePrint}>
+                <Printer size={16} aria-hidden="true" />
                 Cetak / Simpan PDF
               </button>
-              <button type="button" className="btn btn-secondary" onClick={onClose} style={{ flex: 1 }}>
+              <button type="button" className="btn btn-secondary" onClick={onClose}>
                 Selesai
               </button>
             </div>

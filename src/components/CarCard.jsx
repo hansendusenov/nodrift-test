@@ -41,9 +41,9 @@ export const CarCard = ({ car, onSelectCar, onToggleStatus }) => {
 
         {/* Rating & Trip Count */}
         <div className="card-rating-badge">
-          <Star size={13} fill="#fbbf24" color="#fbbf24" />
+          <Star size={13} fill="currentColor" className="rating-star" aria-hidden="true" />
           <span className="tabular-nums">{car.rating}</span>
-          <span style={{ opacity: 0.7 }} className="tabular-nums">({car.tripsCount})</span>
+          <span className="rating-trip-count tabular-nums">({car.tripsCount})</span>
         </div>
       </div>
 
@@ -95,10 +95,6 @@ export const CarCard = ({ car, onSelectCar, onToggleStatus }) => {
             disabled={!isAvailable}
             onClick={() => onSelectCar(car)}
             aria-label={isAvailable ? `Sewa armada ${car.name}` : `Unit ${car.name} sedang tidak tersedia`}
-            style={{
-              opacity: isAvailable ? 1 : 0.55,
-              cursor: isAvailable ? 'pointer' : 'not-allowed',
-            }}
           >
             <span>{isAvailable ? 'Sewa Sekarang' : 'Habis'}</span>
             {isAvailable && <ArrowRight size={15} aria-hidden="true" />}
@@ -106,19 +102,11 @@ export const CarCard = ({ car, onSelectCar, onToggleStatus }) => {
         </div>
 
         {/* Discrete Admin Status Switcher */}
-        <div style={{ marginTop: '0.65rem', textAlign: 'right' }}>
+        <div className="card-admin-row">
           <button
             type="button"
             onClick={() => onToggleStatus(car.id)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--text-subtle)',
-              fontSize: '0.725rem',
-              textDecoration: 'underline',
-              cursor: 'pointer',
-              padding: '0.2rem',
-            }}
+            className="card-admin-btn"
           >
             Status: {isAvailable ? 'Tandai Tersewa' : 'Tandai Siap'}
           </button>

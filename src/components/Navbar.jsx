@@ -29,12 +29,11 @@ export const Navbar = ({ availableCount, totalCount, onOpenHistory }) => {
           {onOpenHistory && (
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-secondary nav-action-btn"
               onClick={onOpenHistory}
-              style={{ padding: '0.45rem 0.85rem', fontSize: '0.825rem' }}
               aria-label="Buka riwayat pemesanan sewa"
             >
-              <History size={15} />
+              <History size={15} aria-hidden="true" />
               <span className="hide-on-mobile">Riwayat Booking</span>
             </button>
           )}
@@ -43,11 +42,10 @@ export const Navbar = ({ availableCount, totalCount, onOpenHistory }) => {
             href={`https://wa.me/${appConfig.whatsappContact}?text=Halo%20${encodeURIComponent(appConfig.appName)},%20saya%20ingin%20tanya%20sewa%20mobil`}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn btn-secondary"
-            style={{ padding: '0.45rem 0.85rem', fontSize: '0.825rem' }}
+            className="btn btn-secondary nav-action-btn"
             aria-label="Hubungi customer service via WhatsApp"
           >
-            <PhoneCall size={15} />
+            <PhoneCall size={15} aria-hidden="true" />
             <span className="hide-on-mobile">Bantuan CS</span>
           </a>
         </div>

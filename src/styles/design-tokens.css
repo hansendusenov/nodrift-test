@@ -21,6 +21,8 @@
   --accent-primary-hover: #1d4ed8;
   --accent-primary-subtle: rgba(37, 99, 235, 0.15);
   --accent-primary-focus: #3b82f6;
+  --accent-link: #60a5fa;      /* 7.64:1 on canvas — text links & inline accents */
+  --accent-link-soft: #93c5fd; /* 9.05:1 on elevated surface — labels & badge text */
 
   /* Semantic Status Colors (Feedback Only) */
   --semantic-success: #10b981;
@@ -39,7 +41,7 @@
   /* Borders & Dividers - Strict WCAG 2.2 AA Non-Text Contrast (min 3:1 for controls) */
   --border-light: rgba(255, 255, 255, 0.08);
   --border-subtle: rgba(255, 255, 255, 0.14);
-  --border-control: #475569;   /* Ratio > 3.2:1 against canvas */
+  --border-control: #64748b;   /* 4.08:1 on canvas, 3.80:1 on --bg-input (WCAG 2.2 AA non-text) */
   --border-focus: #3b82f6;
 
   /* Elevation Shadows (Elevation markers, not page-wide float) */

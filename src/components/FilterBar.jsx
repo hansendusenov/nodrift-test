@@ -34,20 +34,9 @@ export const FilterBar = ({
                 type="button"
                 onClick={() => onSearchChange('')}
                 aria-label="Hapus kata kunci pencarian"
-                style={{
-                  position: 'absolute',
-                  right: '0.85rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'var(--text-subtle)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
+                className="search-clear-btn"
               >
-                <X size={16} />
+                <X size={16} aria-hidden="true" />
               </button>
             )}
           </div>
@@ -71,9 +60,9 @@ export const FilterBar = ({
             <label className="filter-checkbox-label">
               <input
                 type="checkbox"
+                className="filter-checkbox"
                 checked={onlyAvailable}
                 onChange={(e) => onToggleAvailable(e.target.checked)}
-                style={{ accentColor: 'var(--accent-primary)', width: 17, height: 17 }}
               />
               <span>Hanya Unit Siap</span>
             </label>

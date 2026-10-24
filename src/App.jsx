@@ -89,7 +89,7 @@ export function App() {
           {/* Left Column: Headline & Value Prop */}
           <div className="hero-content">
             <div className="hero-kicker">
-              <ShieldCheck size={16} color="#60a5fa" aria-hidden="true" />
+              <ShieldCheck size={16} className="hero-kicker-icon" aria-hidden="true" />
               <span>Rental Mobil Resmi & Terpercaya</span>
             </div>
 
@@ -119,15 +119,15 @@ export function App() {
             {/* Quick Guarantees */}
             <div className="hero-guarantee-row" role="list" aria-label="Jaminan Layanan">
               <div className="guarantee-item" role="listitem">
-                <CheckCircle size={15} color="#10b981" aria-hidden="true" />
+                <CheckCircle size={15} className="guarantee-icon" aria-hidden="true" />
                 <span>Unit Disinfeksi Bersih</span>
               </div>
               <div className="guarantee-item" role="listitem">
-                <CheckCircle size={15} color="#10b981" aria-hidden="true" />
+                <CheckCircle size={15} className="guarantee-icon" aria-hidden="true" />
                 <span>Asuransi All-Risk</span>
               </div>
               <div className="guarantee-item" role="listitem">
-                <CheckCircle size={15} color="#10b981" aria-hidden="true" />
+                <CheckCircle size={15} className="guarantee-icon" aria-hidden="true" />
                 <span>Jaminan Unit Pengganti</span>
               </div>
             </div>
@@ -149,20 +149,20 @@ export function App() {
               </div>
               <div className="featured-card-body">
                 <div>
-                  <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                  <h3 className="featured-card-title">
                     {featuredCar.name}
                   </h3>
-                  <p style={{ fontSize: '0.825rem', color: 'var(--text-subtle)', marginTop: '0.2rem' }}>
+                  <p className="featured-card-meta">
                     Tahun {featuredCar.year} • {featuredCar.category} • {featuredCar.transmission}
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="featured-card-footer">
                   <div>
-                    <span style={{ fontSize: '0.725rem', color: 'var(--text-subtle)' }}>Mulai dari</span>
-                    <p style={{ fontSize: '1.25rem', fontWeight: 800, color: '#60a5fa' }} className="tabular-nums">
+                    <span className="featured-price-label">Mulai dari</span>
+                    <p className="featured-price-value tabular-nums">
                       Rp {featuredCar.pricePerDay.toLocaleString('id-ID')}
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 500 }}>/hari</span>
+                      <span className="featured-price-unit">/hari</span>
                     </p>
                   </div>
                   <button
@@ -244,24 +244,16 @@ export function App() {
         </div>
 
         {filteredCars.length === 0 ? (
-          <div
-            className="surface-card"
-            style={{
-              padding: '4rem 2rem',
-              textAlign: 'center',
-              color: 'var(--text-muted)',
-            }}
-          >
-            <p style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>
+          <div className="surface-card empty-state">
+            <p className="empty-state-title">
               Tidak ada kendaraan yang cocok dengan filter.
             </p>
-            <p style={{ fontSize: '0.9rem', marginTop: '0.5rem', color: 'var(--text-subtle)' }}>
+            <p className="empty-state-desc">
               Coba reset filter kategori, jenis transmisi, atau ubah kata kunci pencarian Anda.
             </p>
             <button
               type="button"
-              className="btn btn-secondary"
-              style={{ marginTop: '1.5rem' }}
+              className="btn btn-secondary empty-state-action"
               onClick={() => {
                 setSearchTerm('');
                 setSelectedCategory('Semua');
@@ -290,18 +282,18 @@ export function App() {
       <footer className="app-footer">
         <div className="footer-container">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.75rem' }}>
-              <div className="brand-icon-box" style={{ width: 28, height: 28 }}>
+            <div className="footer-brand-row">
+              <div className="brand-icon-box footer-brand-icon">
                 <Car size={16} />
               </div>
-              <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-main)' }}>
+              <span className="footer-brand-name">
                 {appConfig.appName}
               </span>
             </div>
-            <p style={{ maxWidth: 440, lineHeight: 1.6, color: 'var(--text-subtle)' }}>
+            <p className="footer-brand-desc">
               Layanan penyewaan kendaraan terpercaya dengan standar kebersihan, perawatan mekanis prima, dan transparansi tarif tanpa biaya tersembunyi.
             </p>
-            <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-subtle)' }}>
+            <p className="footer-copyright">
               © {CURRENT_YEAR} {appConfig.appName}. Seluruh hak cipta dilindungi.
             </p>
           </div>
@@ -325,16 +317,8 @@ export function App() {
               <li>
                 <button
                   type="button"
+                  className="link-button"
                   onClick={() => setIsHistoryOpen(true)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#60a5fa',
-                    cursor: 'pointer',
-                    padding: 0,
-                    fontSize: 'inherit',
-                    fontFamily: 'inherit',
-                  }}
                 >
                   Buka Riwayat Booking Anda
                 </button>
