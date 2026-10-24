@@ -1,0 +1,3 @@
+@echo off
+echo Starting RentCar Pro Development Server...
+call npm.cmd run dev

@@ -1,0 +1,3 @@
+@echo off
+echo Running tests...
+call npm.cmd test

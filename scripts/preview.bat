@@ -1,0 +1,3 @@
+@echo off
+echo Starting RentCar Pro production preview server...
+call npm.cmd run preview

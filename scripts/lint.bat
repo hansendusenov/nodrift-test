@@ -1,0 +1,3 @@
+@echo off
+echo Running linter in check mode...
+call npm.cmd run lint
