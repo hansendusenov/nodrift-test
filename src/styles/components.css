@@ -1223,36 +1223,6 @@
 }
 
 /* --------------------------------------------------------------------------
-   Card admin status switcher
-   -------------------------------------------------------------------------- */
-.card-admin-row {
-  margin-top: 0.65rem;
-  text-align: end;
-}
-
-.card-admin-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-subtle);
-  font-size: 0.725rem;
-  font-family: inherit;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-  padding: 0.35rem 0.25rem;
-}
-
-.card-admin-btn:hover {
-  color: var(--text-main);
-}
-
-.card-admin-btn:focus-visible {
-  outline: 2px solid var(--accent-primary-focus);
-  outline-offset: 2px;
-  border-radius: var(--radius-xs);
-}
-
-/* --------------------------------------------------------------------------
    Modal size variants
    -------------------------------------------------------------------------- */
 .modal-container-md { max-width: 540px; }
@@ -1435,8 +1405,747 @@
 }
 
 /* --------------------------------------------------------------------------
+   Danger & warning buttons
+   -------------------------------------------------------------------------- */
+.btn-danger {
+  background: var(--semantic-danger);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.btn-danger:hover {
+  background: #be123c;
+}
+
+.btn-danger:focus-visible {
+  outline: 2px solid var(--semantic-danger);
+  outline-offset: 2px;
+}
+
+/* Destructive action that should not shout until hovered */
+.btn-ghost-danger {
+  background: transparent;
+  color: var(--text-subtle);
+  border-color: var(--border-subtle);
+}
+
+.btn-ghost-danger:hover {
+  color: #fb7185;
+  border-color: rgba(244, 63, 94, 0.5);
+  background: var(--semantic-danger-subtle);
+}
+
+.btn-ghost-danger:focus-visible {
+  outline: 2px solid var(--semantic-danger);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Warning alert (calendar conflict)
+   -------------------------------------------------------------------------- */
+.alert-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  background: var(--semantic-warning-subtle);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  border-radius: var(--radius-md);
+  color: #fbbf24;
+  font-size: 0.85rem;
+}
+
+.alert-warning svg {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.alert-list {
+  margin: 0.35rem 0 0.5rem;
+  padding-inline-start: 1.1rem;
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Form hint text
+   -------------------------------------------------------------------------- */
+.form-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-subtle);
+  margin-top: 0.3rem;
+}
+
+/* Terms consent reads as a paragraph, not a compact filter label */
+.terms-label {
+  align-items: flex-start;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  min-height: 0;
+}
+
+.terms-label .filter-checkbox {
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Catalog: price cap slider
+   -------------------------------------------------------------------------- */
+.price-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  padding-top: 0.35rem;
+}
+
+.price-filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.825rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.price-filter-range {
+  flex: 1 1 200px;
+  min-width: 140px;
+  accent-color: var(--accent-primary);
+  height: 20px;
+  cursor: pointer;
+}
+
+.price-filter-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.price-filter-range:focus-visible {
+  outline: 2px solid var(--accent-primary-focus);
+  outline-offset: 4px;
+  border-radius: var(--radius-xs);
+}
+
+.price-filter-value {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--accent-link-soft);
+  white-space: nowrap;
+  min-width: 8.5rem;
+  text-align: end;
+}
+
+.filter-reset-btn {
+  background: transparent;
+  border: 1px dashed var(--border-control);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.825rem;
+  font-weight: 500;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--motion-fast), border-color var(--motion-fast);
+}
+
+.filter-reset-btn:hover {
+  color: var(--text-main);
+  border-color: var(--text-muted);
+}
+
+.filter-reset-btn:focus-visible {
+  outline: 2px solid var(--accent-primary-focus);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Card: calendar availability note
+   -------------------------------------------------------------------------- */
+.card-availability-note {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-subtle);
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--semantic-warning-subtle);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.card-availability-note svg {
+  flex-shrink: 0;
+  color: var(--semantic-warning);
+}
+
+/* --------------------------------------------------------------------------
+   Neutral badge (completed bookings)
+   -------------------------------------------------------------------------- */
+.badge-neutral {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+/* --------------------------------------------------------------------------
+   History: cancellation state & inline confirmation
+   -------------------------------------------------------------------------- */
+.history-item.is-cancelled {
+  opacity: 0.72;
+}
+
+.history-item.is-cancelled .history-item-car {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-subtle);
+}
+
+.history-confirm {
+  border-top: 1px solid var(--border-light);
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.history-confirm-block {
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  border-radius: var(--radius-md);
+  padding: 0.85rem;
+  background: var(--semantic-danger-subtle);
+}
+
+.history-confirm-text {
+  font-size: 0.825rem;
+  color: var(--text-main);
+  margin-bottom: 0.6rem;
+}
+
+.history-item-actions {
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
+   Invoice: pickup, notes, cancelled state
+   -------------------------------------------------------------------------- */
+.invoice-vehicle-meta-spaced {
+  margin-top: 0.35rem;
+}
+
+.invoice-notes {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--border-light);
+}
+
+.invoice-badge-status.is-cancelled {
+  background: var(--semantic-danger-subtle);
+  color: #fb7185;
+  border-color: rgba(244, 63, 94, 0.4);
+}
+
+.invoice-cancelled-note {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  background: var(--semantic-danger-subtle);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   8. Staff Panel (#/admin)
+   -------------------------------------------------------------------------- */
+.admin-gate {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.admin-gate-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.admin-gate-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-primary-subtle);
+  color: var(--accent-link);
+}
+
+.admin-gate-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.admin-gate-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.admin-gate-note {
+  font-size: 0.725rem;
+  color: var(--text-subtle);
+  line-height: 1.5;
+  border-top: 1px solid var(--border-light);
+  padding-top: 0.75rem;
+}
+
+.admin-gate-note code {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent-link-soft);
+}
+
+.admin-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.admin-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.admin-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-subtle);
+}
+
+.admin-main {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.15rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.admin-stat-icon {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+}
+
+.admin-stat-icon.tone-blue {
+  background: var(--accent-primary-subtle);
+  color: var(--accent-link);
+}
+
+.admin-stat-icon.tone-emerald {
+  background: var(--semantic-success-subtle);
+  color: #34d399;
+}
+
+.admin-stat-icon.tone-amber {
+  background: var(--semantic-warning-subtle);
+  color: var(--semantic-warning);
+}
+
+.admin-stat-label {
+  font-size: 0.725rem;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-stat-value {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.admin-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.admin-section-title {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.admin-empty {
+  font-size: 0.875rem;
+  color: var(--text-subtle);
+  padding: 2rem;
+  text-align: center;
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+/* Horizontal scroll keeps the table usable on small screens */
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.825rem;
+  min-width: 820px;
+}
+
+.admin-table th {
+  text-align: start;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-subtle);
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-muted);
+  vertical-align: middle;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-cell-code {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent-link);
+  white-space: nowrap;
+}
+
+.admin-cell-strong {
+  display: block;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.admin-cell-sub {
+  display: block;
+  font-size: 0.725rem;
+  color: var(--text-subtle);
+}
+
+.admin-row-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* Fleet management rows */
+.admin-fleet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.admin-fleet-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+}
+
+.admin-fleet-thumb {
+  width: 68px;
+  height: 46px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.admin-fleet-main {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.admin-fleet-price {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.admin-field-label {
+  font-size: 0.7rem;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-price-input {
+  width: 9.5rem;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.825rem;
+}
+
+/* --------------------------------------------------------------------------
+   Staff panel: cross-tab sync & notifications
+   -------------------------------------------------------------------------- */
+
+/* Transient banner shown after a background reload from another tab */
+.admin-sync-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: var(--accent-primary-subtle);
+  border: 1px solid rgba(37, 99, 235, 0.4);
+  color: var(--accent-link-soft);
+  font-size: 0.8rem;
+}
+
+.admin-sync-banner svg {
+  flex-shrink: 0;
+}
+
+.admin-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Notification bell */
+.notif-wrap {
+  position: relative;
+}
+
+.notif-btn {
+  position: relative;
+}
+
+.notif-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--semantic-danger);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.notif-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 320px;
+  max-width: calc(100vw - 2rem);
+  max-height: 380px;
+  overflow-y: auto;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 40;
+}
+
+.notif-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--border-light);
+  position: sticky;
+  top: 0;
+  background: var(--bg-surface-elevated);
+}
+
+.notif-panel-title {
+  font-size: 0.775rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.notif-empty {
+  padding: 1.25rem 0.85rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-subtle);
+}
+
+.notif-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
+
+.notif-item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-item-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-main);
+  overflow-wrap: anywhere;
+}
+
+.notif-item-detail {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+  overflow-wrap: anywhere;
+}
+
+.notif-item-time {
+  font-size: 0.7rem;
+  color: var(--text-subtle);
+  margin-top: 0.3rem;
+}
+
+.notif-item-dismiss {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-subtle);
+  cursor: pointer;
+  padding: 0.15rem;
+  border-radius: var(--radius-xs);
+  display: flex;
+}
+
+.notif-item-dismiss:hover {
+  color: var(--text-main);
+}
+
+.notif-item-dismiss:focus-visible {
+  outline: 2px solid var(--accent-primary-focus);
+  outline-offset: 1px;
+}
+
+/* Row that arrived while the panel was open */
+.admin-row-new {
+  background: var(--accent-primary-subtle);
+}
+
+.admin-table tbody tr.admin-row-new:hover {
+  background: rgba(37, 99, 235, 0.22);
+}
+
+.admin-new-tag {
+  display: inline-block;
+  margin-inline-start: 0.4rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: var(--radius-xs);
+  background: var(--accent-primary);
+  color: #ffffff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+}
+
+/* --------------------------------------------------------------------------
    Small-viewport overrides (must stay last so they win the cascade)
    -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-main {
+    padding: 1.5rem;
+  }
+}
+
 @media (max-width: 400px) {
   .filter-section,
   .catalog-section,
@@ -1468,6 +2177,14 @@
   .nav-actions {
     gap: 0.4rem;
     min-width: 0;
+  }
+
+  /* Three icon-only actions share the row with the brand at 320px, so trim
+     the horizontal padding while keeping a 38px touch target. */
+  .nav-action-btn {
+    padding: 0.45rem 0.55rem;
+    min-width: 38px;
+    min-height: 38px;
   }
 
   .brand-logo {
@@ -1507,6 +2224,56 @@
 
   .invoice-actions-row {
     flex-direction: column;
+  }
+
+  /* Admin panel: stats collapse to one column, rows stack vertically */
+  .admin-header {
+    padding: 0.85rem 1rem;
+  }
+
+  .admin-main {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .admin-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-fleet-row {
+    gap: 0.65rem;
+  }
+
+  .admin-fleet-price {
+    flex: 1 1 100%;
+  }
+
+  .admin-price-input {
+    width: 100%;
+  }
+
+  .admin-gate {
+    padding: 1rem;
+  }
+
+  .admin-gate-card {
+    padding: 1.5rem;
+  }
+
+  .price-filter-value {
+    min-width: 0;
+    text-align: start;
+  }
+
+  /* The bell sits at the left end of the wrapped header row at 320px, so a
+     right-anchored panel would extend past the left edge. Anchor it to the
+     bell's left edge and cap it to the viewport width instead. */
+  .notif-panel {
+    left: 0;
+    right: auto;
+    width: calc(100vw - 2rem);
+    max-width: calc(100vw - 2rem);
+    max-height: 60vh;
   }
 }
 

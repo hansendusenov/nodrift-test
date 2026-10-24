@@ -1,13 +1,14 @@
 import React from 'react';
-import { Car, PhoneCall, History } from 'lucide-react';
+import { Car, PhoneCall, History, LayoutDashboard } from 'lucide-react';
 import { appConfig } from '../config/index.js';
+import { ROUTES } from '../hooks/useHashRoute.js';
 
 export const Navbar = ({ availableCount, totalCount, onOpenHistory }) => {
   return (
     <header className="navbar">
       <div className="navbar-container">
         {/* Brand Logo */}
-        <a href="#" className="brand-logo" aria-label={`Beranda ${appConfig.appName}`}>
+        <a href="#/" className="brand-logo" aria-label={`Beranda ${appConfig.appName}`}>
           <div className="brand-icon-box" aria-hidden="true">
             <Car size={20} />
           </div>
@@ -22,7 +23,7 @@ export const Navbar = ({ availableCount, totalCount, onOpenHistory }) => {
           <div className="fleet-status-indicator">
             <span className="status-dot-pulse" aria-hidden="true"></span>
             <span>
-              <strong className="tabular-nums">{availableCount}</strong>/{totalCount} Siap Pakai
+              <strong className="tabular-nums">{availableCount}</strong>/<span className="tabular-nums">{totalCount}</span> Siap Pakai
             </span>
           </div>
 
@@ -37,6 +38,15 @@ export const Navbar = ({ availableCount, totalCount, onOpenHistory }) => {
               <span className="hide-on-mobile">Riwayat Booking</span>
             </button>
           )}
+
+          <a
+            href={ROUTES.ADMIN}
+            className="btn btn-secondary nav-action-btn"
+            aria-label="Buka panel operasional staf"
+          >
+            <LayoutDashboard size={15} aria-hidden="true" />
+            <span className="hide-on-mobile">Panel Staf</span>
+          </a>
 
           <a
             href={`https://wa.me/${appConfig.whatsappContact}?text=Halo%20${encodeURIComponent(appConfig.appName)},%20saya%20ingin%20tanya%20sewa%20mobil`}

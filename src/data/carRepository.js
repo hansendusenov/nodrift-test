@@ -5,8 +5,9 @@
  */
 
 import { INITIAL_CARS } from './mockCars.js';
+import { FLEET_STORAGE_KEY } from './storageKeys.js';
 
-const STORAGE_KEY = 'rentcar_fleet_v1';
+const STORAGE_KEY = FLEET_STORAGE_KEY;
 
 export const carRepository = {
   /**
@@ -20,7 +21,11 @@ export const carRepository = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_CARS));
         return INITIAL_CARS;
       }
-      return JSON.parse(stored);
+
+      const parsed = JSON.parse(stored);
+      // A corrupted payload must not blank the catalog
+      if (!Array.isArray(parsed) || parsed.length === 0) return INITIAL_CARS;
+      return parsed.filter((car) => car && typeof car === 'object' && car.id);
     } catch (err) {
       console.error('[carRepository.getAll] Failed to read localStorage:', err);
       return INITIAL_CARS;
@@ -58,6 +63,27 @@ export const carRepository = {
     } catch (err) {
       console.error('[carRepository.toggleAvailability] Error saving:', err);
       return null;
+    }
+  },
+
+  /**
+   * Updates the daily rate of one unit.
+   * @param {string} id
+   * @param {number} pricePerDay
+   * @returns {object|null}
+   */
+  updatePrice(id, pricePerDay) {
+    try {
+      const cars = this.getAll();
+      const index = cars.findIndex((c) => c.id === id);
+      if (index === -1) return null;
+
+      cars[index] = { ...cars[index], pricePerDay };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cars));
+      return cars[index];
+    } catch (err) {
+      console.error('[carRepository.updatePrice] Error saving:', err);
+      throw err;
     }
   },
 

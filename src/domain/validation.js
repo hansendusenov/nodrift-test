@@ -3,12 +3,33 @@
  * Adheres to nodrift-standard Section 5: Validate at the boundary.
  */
 
+import { todayISO } from './bookingStatus.js';
+
+/**
+ * Validates a booking request before it reaches storage.
+ *
+ * @param {object} params
+ * @param {string} params.customerName
+ * @param {string} params.customerPhone
+ * @param {string} params.customerIdCard
+ * @param {string} params.startDate
+ * @param {string} params.endDate
+ * @param {boolean} [params.agreeToTerms] Customer must accept the rental terms.
+ * @param {string} [params.pickupOptionId] Delivery zone; must exist in PICKUP_OPTIONS.
+ * @param {string[]} [params.pickupOptionIds] Allowed zone ids, injected by the caller.
+ * @param {string} [params.today] Reference date for the past-date rule.
+ * @returns {{isValid: boolean, errors: object}}
+ */
 export function validateBookingInput({
   customerName,
   customerPhone,
   customerIdCard,
   startDate,
   endDate,
+  agreeToTerms = false,
+  pickupOptionId = 'DEPOT',
+  pickupOptionIds = ['DEPOT'],
+  today = todayISO(),
 }) {
   const errors = {};
 
@@ -27,6 +48,8 @@ export function validateBookingInput({
 
   if (!startDate) {
     errors.startDate = 'Tanggal mulai sewa wajib diisi.';
+  } else if (startDate < today) {
+    errors.startDate = 'Tanggal mulai tidak boleh di masa lalu.';
   }
 
   if (!endDate) {
@@ -34,11 +57,17 @@ export function validateBookingInput({
   }
 
   if (startDate && endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    if (end < start) {
+    if (endDate < startDate) {
       errors.endDate = 'Tanggal selesai tidak boleh sebelum tanggal mulai.';
     }
+  }
+
+  if (!pickupOptionIds.includes(pickupOptionId)) {
+    errors.pickupOptionId = 'Pilih lokasi pengambilan unit yang tersedia.';
+  }
+
+  if (!agreeToTerms) {
+    errors.agreeToTerms = 'Anda harus menyetujui syarat & ketentuan sewa.';
   }
 
   return {
@@ -69,11 +98,14 @@ export function buildWhatsAppBookingMessage({
     `*Periode:* ${bookingData.startDate} s/d ${bookingData.endDate} (${costBreakdown.days} hari)`,
     `*Layanan:* ${bookingData.withDriver ? 'Dengan Sopir' : 'Lepas Kunci'}`,
     `*Asuransi:* ${bookingData.withInsurance ? 'Perlindungan Penuh' : 'Standar'}`,
+    `*Pengambilan:* ${costBreakdown.pickupLabel || 'Ambil di Depot'}`,
+    bookingData.notes ? `*Catatan:* ${bookingData.notes}` : null,
     ``,
     `*Rincian Biaya:*`,
     `- Sewa Mobil: Rp ${costBreakdown.carSubtotal.toLocaleString('id-ID')}`,
     bookingData.withDriver ? `- Jasa Sopir: Rp ${costBreakdown.driverSubtotal.toLocaleString('id-ID')}` : null,
     bookingData.withInsurance ? `- Asuransi: Rp ${costBreakdown.insuranceSubtotal.toLocaleString('id-ID')}` : null,
+    costBreakdown.pickupFee ? `- Antar/Jemput: Rp ${costBreakdown.pickupFee.toLocaleString('id-ID')}` : null,
     `----------------------------------------`,
     `*TOTAL BIAYA: Rp ${costBreakdown.grandTotal.toLocaleString('id-ID')}*`,
     ``,

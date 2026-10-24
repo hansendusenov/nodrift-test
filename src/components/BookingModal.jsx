@@ -1,17 +1,11 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { X, Calendar, UserCheck, Shield, Car, AlertCircle } from 'lucide-react';
-import { calculateRentalCost } from '../domain/rentalService.js';
+import { X, Calendar, UserCheck, Shield, Car, AlertCircle, MapPin, Info } from 'lucide-react';
+import { calculateRentalCost, PICKUP_OPTIONS } from '../domain/rentalService.js';
 import { validateBookingInput } from '../domain/validation.js';
+import { findBookingConflicts } from '../domain/availability.js';
+import { formatRupiah, formatDateID } from '../lib/format.js';
 import { bookingRepository } from '../data/bookingRepository.js';
 import { useFocusTrap } from '../hooks/useFocusTrap.js';
-
-const formatRupiah = (num) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(num);
-};
 
 const getInitialDates = () => {
   const now = new Date();
@@ -24,12 +18,16 @@ const getInitialDates = () => {
   };
 };
 
-export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
+const PICKUP_OPTION_IDS = PICKUP_OPTIONS.map((option) => option.id);
+
+export const BookingModal = ({ car, bookings = [], onClose, onBookingSuccess }) => {
   const [initialDates] = useState(getInitialDates);
   const [startDate, setStartDate] = useState(initialDates.tomorrow);
   const [endDate, setEndDate] = useState(initialDates.dayAfter);
   const [withDriver, setWithDriver] = useState(false);
   const [withInsurance, setWithInsurance] = useState(true);
+  const [pickupOptionId, setPickupOptionId] = useState('DEPOT');
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
 
@@ -39,6 +37,7 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
   const customerIdCardRef = useRef(null);
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
+  const termsRef = useRef(null);
 
   // Trap focus inside the dialog and restore it to the trigger on close
   const containerRef = useRef(null);
@@ -65,6 +64,18 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
 
   const [formErrors, setFormErrors] = useState({});
 
+  // Live calendar check: warn before the customer fills in the whole form
+  const conflicts = useMemo(
+    () =>
+      findBookingConflicts({
+        bookings,
+        carId: car.id,
+        startDate,
+        endDate,
+      }),
+    [bookings, car.id, startDate, endDate]
+  );
+
   // Dynamic cost calculation via domain service
   const cost = useMemo(() => {
     return calculateRentalCost({
@@ -74,8 +85,9 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
       endDate,
       withDriver,
       withInsurance,
+      pickupOptionId,
     });
-  }, [car, startDate, endDate, withDriver, withInsurance]);
+  }, [car, startDate, endDate, withDriver, withInsurance, pickupOptionId]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -94,6 +106,9 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
       customerIdCard: formData.customerIdCard,
       startDate,
       endDate,
+      agreeToTerms,
+      pickupOptionId,
+      pickupOptionIds: PICKUP_OPTION_IDS,
     });
 
     if (!validation.isValid) {
@@ -105,11 +120,21 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
         customerIdCard: customerIdCardRef,
         startDate: startDateRef,
         endDate: endDateRef,
+        agreeToTerms: termsRef,
       };
       const firstErrorKey = Object.keys(validation.errors)[0];
       if (firstErrorKey && refMap[firstErrorKey]?.current) {
         refMap[firstErrorKey].current.focus();
       }
+      return;
+    }
+
+    // Re-check the calendar at submit time: another tab may have booked it
+    // while this form was open.
+    if (conflicts.length > 0) {
+      setFormErrors({
+        endDate: `Unit ini sudah dipesan ${formatDateID(conflicts[0].startDate)} – ${formatDateID(conflicts[0].endDate)}.`,
+      });
       return;
     }
 
@@ -124,6 +149,7 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
         endDate,
         withDriver,
         withInsurance,
+        pickupOptionId,
         costBreakdown: cost,
         customerName: formData.customerName.trim(),
         customerPhone: formData.customerPhone.trim(),
@@ -139,6 +165,8 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
       setIsSubmitting(false);
     }
   };
+
+  const hasConflict = conflicts.length > 0;
 
   return (
     <div
@@ -224,10 +252,10 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
                 id="end-date-input"
                 ref={endDateRef}
                 type="date"
-                className={`form-input ${formErrors.endDate ? 'error' : ''}`}
+                className={`form-input ${formErrors.endDate || hasConflict ? 'error' : ''}`}
                 min={startDate || initialDates.today}
                 value={endDate}
-                aria-invalid={Boolean(formErrors.endDate)}
+                aria-invalid={Boolean(formErrors.endDate) || hasConflict}
                 aria-describedby={formErrors.endDate ? 'end-date-error' : undefined}
                 onChange={(e) => setEndDate(e.target.value)}
               />
@@ -237,6 +265,24 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
             </div>
           </div>
 
+          {/* Calendar conflict warning */}
+          {hasConflict && (
+            <div role="alert" className="alert-warning">
+              <Info size={18} aria-hidden="true" />
+              <div>
+                <strong>Unit tidak tersedia pada tanggal tersebut.</strong>
+                <ul className="alert-list">
+                  {conflicts.map((conflict) => (
+                    <li key={conflict.id}>
+                      Sudah dipesan <span className="tabular-nums">{formatDateID(conflict.startDate)}</span> –{' '}
+                      <span className="tabular-nums">{formatDateID(conflict.endDate)}</span>
+                    </li>
+                  ))}
+                </ul>
+                <span>Silakan pilih tanggal lain atau armada yang berbeda.</span>
+              </div>
+            </div>
+          )}
 
           {/* Options: Driver & Insurance */}
           <div className="stack-6">
@@ -275,6 +321,34 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
                 onChange={(e) => setWithInsurance(e.target.checked)}
               />
             </label>
+          </div>
+
+          {/* Pickup / delivery zone */}
+          <div className="form-group">
+            <label htmlFor="pickup-option-input" className="form-label">
+              <MapPin size={14} className="form-label-icon" aria-hidden="true" /> Lokasi Pengambilan Unit
+            </label>
+            <select
+              id="pickup-option-input"
+              className={`form-input ${formErrors.pickupOptionId ? 'error' : ''}`}
+              value={pickupOptionId}
+              aria-invalid={Boolean(formErrors.pickupOptionId)}
+              aria-describedby={formErrors.pickupOptionId ? 'pickup-option-error' : 'pickup-option-hint'}
+              onChange={(e) => setPickupOptionId(e.target.value)}
+            >
+              {PICKUP_OPTIONS.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                  {option.fee > 0 ? ` (+${formatRupiah(option.fee)})` : ''}
+                </option>
+              ))}
+            </select>
+            <span id="pickup-option-hint" className="form-hint">
+              Biaya antar/jemput dihitung sekali per pesanan, bukan per hari.
+            </span>
+            {formErrors.pickupOptionId && (
+              <span id="pickup-option-error" className="form-error">{formErrors.pickupOptionId}</span>
+            )}
           </div>
 
           {/* Customer Information */}
@@ -337,7 +411,6 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
                   <span id="customer-idcard-error" className="form-error">{formErrors.customerIdCard}</span>
                 )}
               </div>
-
             </div>
 
             <div className="form-group">
@@ -346,7 +419,7 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
                 id="customer-notes-input"
                 type="text"
                 className="form-input"
-                placeholder="Lokasi antar jemput khusus / permintaan khusus"
+                placeholder="Alamat lengkap antar jemput / permintaan khusus"
                 value={formData.notes}
                 onChange={(e) => handleInputChange('notes', e.target.value)}
               />
@@ -371,10 +444,45 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
                 <span className="tabular-nums">{formatRupiah(cost.insuranceSubtotal)}</span>
               </div>
             )}
+            {cost.pickupFee > 0 && (
+              <div className="summary-row">
+                <span>Antar / Jemput Unit</span>
+                <span className="tabular-nums">{formatRupiah(cost.pickupFee)}</span>
+              </div>
+            )}
             <div className="summary-row total">
               <span>Total Estimasi Biaya</span>
               <span className="total-amount tabular-nums">{formatRupiah(cost.grandTotal)}</span>
             </div>
+          </div>
+
+          {/* Terms consent */}
+          <div className="form-group">
+            <label className="filter-checkbox-label terms-label">
+              <input
+                id="terms-consent-input"
+                ref={termsRef}
+                type="checkbox"
+                className="filter-checkbox"
+                checked={agreeToTerms}
+                aria-invalid={Boolean(formErrors.agreeToTerms)}
+                aria-describedby={formErrors.agreeToTerms ? 'terms-consent-error' : undefined}
+                onChange={(e) => {
+                  setAgreeToTerms(e.target.checked);
+                  if (formErrors.agreeToTerms) {
+                    setFormErrors((prev) => ({ ...prev, agreeToTerms: undefined }));
+                  }
+                }}
+              />
+              <span>
+                Saya menyetujui syarat sewa: unit dikembalikan dengan bahan bakar setara,
+                keterlambatan dikenakan biaya tambahan per hari, dan penyewa bertanggung jawab
+                atas pelanggaran lalu lintas selama masa sewa.
+              </span>
+            </label>
+            {formErrors.agreeToTerms && (
+              <span id="terms-consent-error" className="form-error">{formErrors.agreeToTerms}</span>
+            )}
           </div>
 
           {/* Submit Action */}
@@ -390,7 +498,7 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
             <button
               type="submit"
               className="btn btn-primary btn-submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || hasConflict}
             >
               {isSubmitting ? 'Memproses...' : 'Konfirmasi & Buat Invoice'}
             </button>
@@ -402,4 +510,3 @@ export const BookingModal = ({ car, onClose, onBookingSuccess }) => {
 };
 
 export default BookingModal;
-

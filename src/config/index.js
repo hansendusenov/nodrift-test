@@ -22,7 +22,17 @@ export const appConfig = Object.freeze({
   whatsappContact: import.meta.env.VITE_WHATSAPP_CONTACT || '6281234567890',
   defaultCurrency: import.meta.env.VITE_DEFAULT_CURRENCY || 'IDR',
   isDev: Boolean(import.meta.env.DEV),
+
+  /**
+   * Gate for the staff panel at `#/admin`.
+   *
+   * SECURITY: this is a mockup. The PIN ships in the client bundle and can be
+   * read by anyone who opens DevTools, and all data lives in localStorage.
+   * It only stops a casual visitor from wandering into the panel; it is not
+   * authentication. Real access control requires a backend that verifies the
+   * credential server-side.
+   */
+  adminPin: import.meta.env.VITE_ADMIN_PIN || '2468',
 });
 
 export default appConfig;
-

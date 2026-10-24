@@ -1,5 +1,7 @@
 import React from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, SlidersHorizontal } from 'lucide-react';
+import { SORT_OPTIONS, TRANSMISSION_OPTIONS } from '../domain/catalog.js';
+import { formatRupiah } from '../lib/format.js';
 
 const CATEGORIES = ['Semua', 'MPV', 'SUV', 'City Car', 'Luxury', 'EV'];
 
@@ -12,7 +14,18 @@ export const FilterBar = ({
   onTransmissionChange,
   onlyAvailable,
   onToggleAvailable,
+  sortBy,
+  onSortChange,
+  maxPrice,
+  onMaxPriceChange,
+  priceBounds,
+  activeFilterCount,
+  onResetFilters,
 }) => {
+  const priceCapDisabled = !priceBounds || priceBounds.max === 0;
+  // A cap at the fleet maximum means "no cap", so show the slider at its end
+  const sliderValue = maxPrice > 0 ? maxPrice : priceBounds?.max || 0;
+
   return (
     <section className="filter-section" aria-label="Filter dan Pencarian Armada">
       <div className="filter-card">
@@ -49,9 +62,23 @@ export const FilterBar = ({
               aria-label="Filter jenis transmisi kendaraan"
               onChange={(e) => onTransmissionChange(e.target.value)}
             >
-              <option value="ALL">Semua Transmisi</option>
-              <option value="Automatic">Otomatis (Matic)</option>
-              <option value="Manual">Manual</option>
+              {TRANSMISSION_OPTIONS.map((option) => (
+                <option key={option.id} value={option.id}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sort Selector */}
+          <div>
+            <select
+              className="filter-select"
+              value={sortBy}
+              aria-label="Urutkan daftar armada"
+              onChange={(e) => onSortChange(e.target.value)}
+            >
+              {SORT_OPTIONS.map((option) => (
+                <option key={option.id} value={option.id}>{option.label}</option>
+              ))}
             </select>
           </div>
 
@@ -67,6 +94,37 @@ export const FilterBar = ({
               <span>Hanya Unit Siap</span>
             </label>
           </div>
+        </div>
+
+        {/* Price cap */}
+        <div className="price-filter-row">
+          <label htmlFor="price-cap-input" className="price-filter-label">
+            <SlidersHorizontal size={15} aria-hidden="true" />
+            Batas Harga Harian
+          </label>
+          <input
+            id="price-cap-input"
+            type="range"
+            className="price-filter-range"
+            min={priceBounds?.min || 0}
+            max={priceBounds?.max || 0}
+            step={50000}
+            value={sliderValue}
+            disabled={priceCapDisabled}
+            aria-valuetext={
+              sliderValue >= (priceBounds?.max || 0)
+                ? 'Tanpa batas harga'
+                : `Maksimal ${formatRupiah(sliderValue)} per hari`
+            }
+            onChange={(e) => {
+              const next = Number(e.target.value);
+              // Dragging to the far right clears the cap entirely
+              onMaxPriceChange(next >= (priceBounds?.max || 0) ? 0 : next);
+            }}
+          />
+          <output htmlFor="price-cap-input" className="price-filter-value tabular-nums">
+            {sliderValue >= (priceBounds?.max || 0) ? 'Tanpa batas' : `≤ ${formatRupiah(sliderValue)}`}
+          </output>
         </div>
 
         {/* Category Filter Chips */}
@@ -86,6 +144,16 @@ export const FilterBar = ({
               </button>
             );
           })}
+
+          {activeFilterCount > 0 && (
+            <button
+              type="button"
+              className="filter-reset-btn"
+              onClick={onResetFilters}
+            >
+              Reset ({activeFilterCount})
+            </button>
+          )}
         </div>
       </div>
     </section>

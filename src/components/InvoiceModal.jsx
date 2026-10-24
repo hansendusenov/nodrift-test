@@ -1,15 +1,16 @@
 import React, { useEffect, useRef } from 'react';
-import { X, CheckCircle2, MessageSquare, Printer, Calendar } from 'lucide-react';
+import { X, CheckCircle2, MessageSquare, Printer, Calendar, MapPin, Ban, Clock } from 'lucide-react';
 import { buildWhatsAppBookingMessage } from '../domain/validation.js';
+import { BOOKING_STATUS, BOOKING_STATUS_META, deriveBookingStatus } from '../domain/bookingStatus.js';
+import { formatRupiah, formatDateID } from '../lib/format.js';
 import { appConfig } from '../config/index.js';
 import { useFocusTrap } from '../hooks/useFocusTrap.js';
 
-const formatRupiah = (num) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(num);
+const STATUS_ICON = {
+  [BOOKING_STATUS.CONFIRMED]: CheckCircle2,
+  [BOOKING_STATUS.ONGOING]: Clock,
+  [BOOKING_STATUS.COMPLETED]: CheckCircle2,
+  [BOOKING_STATUS.CANCELLED]: Ban,
 };
 
 export const InvoiceModal = ({ booking, car, onClose }) => {
@@ -28,6 +29,12 @@ export const InvoiceModal = ({ booking, car, onClose }) => {
 
   if (!booking) return null;
 
+  const status = deriveBookingStatus(booking);
+  const statusMeta = BOOKING_STATUS_META[status];
+  const StatusIcon = STATUS_ICON[status] || CheckCircle2;
+  const isCancelled = status === BOOKING_STATUS.CANCELLED;
+
+  // A cancelled booking must not produce a confirmation message to the CS
   const waUrl = buildWhatsAppBookingMessage({
     whatsappContact: appConfig.whatsappContact,
     bookingId: booking.id,
@@ -41,6 +48,7 @@ export const InvoiceModal = ({ booking, car, onClose }) => {
       endDate: booking.endDate,
       withDriver: booking.withDriver,
       withInsurance: booking.withInsurance,
+      notes: booking.notes,
     },
   });
 
@@ -65,8 +73,8 @@ export const InvoiceModal = ({ booking, car, onClose }) => {
         {/* Header */}
         <div className="modal-header">
           <div className="row-8">
-            <span id="invoice-modal-title" className="invoice-badge-status">
-              <CheckCircle2 size={16} /> Booking Berhasil Dibuat
+            <span id="invoice-modal-title" className={`invoice-badge-status ${isCancelled ? 'is-cancelled' : ''}`}>
+              <StatusIcon size={16} aria-hidden="true" /> {isCancelled ? 'Pesanan Dibatalkan' : 'Bukti Pemesanan'}
             </span>
           </div>
           <button
@@ -92,6 +100,7 @@ export const InvoiceModal = ({ booking, car, onClose }) => {
                 <p className="invoice-code-value tabular-nums">
                   {booking.id}
                 </p>
+                <span className={`badge ${statusMeta.badgeClass}`}>{statusMeta.label}</span>
               </div>
             </div>
 
@@ -119,51 +128,77 @@ export const InvoiceModal = ({ booking, car, onClose }) => {
               <div className="invoice-vehicle-meta">
                 <span className="invoice-date-inline">
                   <Calendar size={13} color="var(--accent-primary)" aria-hidden="true" />
-                  <span className="tabular-nums">{booking.startDate}</span> s/d <span className="tabular-nums">{booking.endDate}</span> (<span className="tabular-nums">{booking.costBreakdown.days}</span> Hari)
+                  <span className="tabular-nums">{formatDateID(booking.startDate)}</span> s/d{' '}
+                  <span className="tabular-nums">{formatDateID(booking.endDate)}</span> (
+                  <span className="tabular-nums">{booking.costBreakdown?.days || 1}</span> Hari)
                 </span>
-                <span>•</span>
+                <span aria-hidden="true">•</span>
                 <span>{booking.withDriver ? 'Driver Termasuk' : 'Lepas Kunci'}</span>
-                <span>•</span>
+                <span aria-hidden="true">•</span>
                 <span>{booking.withInsurance ? 'Proteksi Penuh' : 'Standar'}</span>
               </div>
+              {booking.costBreakdown?.pickupLabel && (
+                <div className="invoice-vehicle-meta invoice-vehicle-meta-spaced">
+                  <span className="invoice-date-inline">
+                    <MapPin size={13} color="var(--accent-primary)" aria-hidden="true" />
+                    {booking.costBreakdown.pickupLabel}
+                  </span>
+                </div>
+              )}
+              {booking.notes && (
+                <p className="invoice-notes">Catatan: {booking.notes}</p>
+              )}
             </div>
 
             {/* Price breakdown */}
             <div className="invoice-section-top-flush">
               <div className="summary-row">
                 <span>Biaya Unit Mobil</span>
-                <span className="tabular-nums">{formatRupiah(booking.costBreakdown.carSubtotal)}</span>
+                <span className="tabular-nums">{formatRupiah(booking.costBreakdown?.carSubtotal)}</span>
               </div>
               {booking.withDriver && (
                 <div className="summary-row">
                   <span>Jasa Sopir</span>
-                  <span className="tabular-nums">{formatRupiah(booking.costBreakdown.driverSubtotal)}</span>
+                  <span className="tabular-nums">{formatRupiah(booking.costBreakdown?.driverSubtotal)}</span>
                 </div>
               )}
               {booking.withInsurance && (
                 <div className="summary-row">
                   <span>Asuransi All-Risk</span>
-                  <span className="tabular-nums">{formatRupiah(booking.costBreakdown.insuranceSubtotal)}</span>
+                  <span className="tabular-nums">{formatRupiah(booking.costBreakdown?.insuranceSubtotal)}</span>
+                </div>
+              )}
+              {Boolean(booking.costBreakdown?.pickupFee) && (
+                <div className="summary-row">
+                  <span>Antar / Jemput Unit</span>
+                  <span className="tabular-nums">{formatRupiah(booking.costBreakdown?.pickupFee)}</span>
                 </div>
               )}
               <div className="summary-row total">
                 <span>Total Tagihan</span>
-                <span className="total-amount tabular-nums">{formatRupiah(booking.costBreakdown.grandTotal)}</span>
+                <span className="total-amount tabular-nums">{formatRupiah(booking.costBreakdown?.grandTotal)}</span>
               </div>
             </div>
           </div>
 
           {/* Action CTAs */}
           <div className="invoice-actions">
-            <a
-              href={waUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-whatsapp"
-            >
-              <MessageSquare size={20} aria-hidden="true" />
-              Kirim Bukti ke WhatsApp Customer Service
-            </a>
+            {isCancelled ? (
+              <p className="invoice-cancelled-note">
+                Pesanan ini sudah dibatalkan. Hubungi customer service bila Anda ingin
+                menjadwalkan ulang perjalanan.
+              </p>
+            ) : (
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-whatsapp"
+              >
+                <MessageSquare size={20} aria-hidden="true" />
+                Kirim Bukti ke WhatsApp Customer Service
+              </a>
+            )}
 
             <div className="invoice-actions-row">
               <button type="button" className="btn btn-secondary" onClick={handlePrint}>
@@ -182,4 +217,3 @@ export const InvoiceModal = ({ booking, car, onClose }) => {
 };
 
 export default InvoiceModal;
-

@@ -1,0 +1,126 @@
+/* ==========================================================================
+   RentCar Pro - Print Stylesheet
+   The "Cetak / Simpan PDF" button calls window.print(). Without these rules
+   the browser would print the whole catalog page behind the invoice dialog:
+   navbar, hero, filters, fleet grid and footer.
+   ========================================================================== */
+
+@media print {
+  /* Everything that is not the open dialog is noise on paper */
+  .navbar,
+  .hero-section,
+  .services-section,
+  .filter-section,
+  .catalog-section,
+  .app-footer,
+  .admin-header,
+  .admin-stats,
+  .admin-section,
+  .modal-header,
+  .invoice-actions,
+  .close-btn {
+    display: none !important;
+  }
+
+  /* Neutralise the dark theme: ink on white saves toner and stays legible */
+  html,
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-size: 11pt;
+  }
+
+  .modal-overlay {
+    position: static !important;
+    display: block !important;
+    padding: 0 !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    overflow: visible !important;
+  }
+
+  .modal-container {
+    max-width: none !important;
+    width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    position: static !important;
+  }
+
+  .modal-body {
+    padding: 0 !important;
+  }
+
+  /* Receipt card: a clean bordered block, no glass or elevation */
+  .invoice-receipt {
+    background: transparent !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+    padding: 1.25rem !important;
+    break-inside: avoid;
+  }
+
+  .invoice-brand-name,
+  .invoice-vehicle-name,
+  .invoice-detail-value,
+  .total-amount,
+  .invoice-code-value,
+  .summary-row,
+  .invoice-detail-row,
+  .invoice-detail-label,
+  .invoice-vehicle-meta,
+  .invoice-brand-sub,
+  .invoice-code-label,
+  .invoice-notes {
+    color: #111827 !important;
+  }
+
+  .invoice-brand-name,
+  .invoice-vehicle-name,
+  .invoice-code-value,
+  .total-amount {
+    font-weight: 700 !important;
+  }
+
+  .invoice-badge-status {
+    background: transparent !important;
+    border: 1px solid #6b7280 !important;
+    color: #111827 !important;
+  }
+
+  .invoice-vehicle-box {
+    background: #f3f4f6 !important;
+    border: 1px solid #e5e7eb !important;
+  }
+
+  .invoice-section-top,
+  .invoice-section-top-flush,
+  .summary-row.total {
+    border-color: #d1d5db !important;
+  }
+
+  .badge {
+    border: 1px solid #6b7280 !important;
+    background: transparent !important;
+    color: #111827 !important;
+  }
+
+  /* A printed receipt is a record: keep the URL of any link visible */
+  a[href]::after {
+    content: ' (' attr(href) ')';
+    font-size: 9pt;
+    color: #4b5563;
+  }
+
+  .invoice-receipt a[href]::after {
+    content: none;
+  }
+
+  @page {
+    margin: 14mm;
+  }
+}
